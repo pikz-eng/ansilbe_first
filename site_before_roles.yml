@@ -1,0 +1,135 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Update all packages on all servers
+      tags: always
+      dnf:       
+        update_cache: yes
+      changed_when: false
+      when: ansible_distribution == "AlmaLinux" or ansible_distribution_version == "9.5"
+
+
+- hosts: all
+  become: true
+  tasks:
+  
+  
+  - name: add ssh key for marius
+    tags: always
+    authorized_key:
+      user: marius
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlDU8mK0R1T4W7oDBVpRdHMcD+tHhGGDujNMcbEX7/x ansible"
+    
+
+- hosts: workstations
+  become: true
+  tasks:
+  
+  - name: install unzip
+    package: 
+      name: unzip
+
+  - name: install terraform
+    unarchive:
+      src: https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
+      dest: /usr/local/bin
+      remote_src: yes
+      mode: 0755
+      owner: root
+      group: root
+
+
+
+
+- hosts: web_servers
+  become: true
+  tasks:
+    - name: Install Apache2 and PHP packages (only on web_servers)
+      tags:
+        - apache 
+        -  httpd
+        -  almalinux
+      dnf:
+        name:
+          - httpd
+          - php
+        state: latest
+        update_cache: yes
+      when: ansible_distribution_version == "9.5"
+
+    - name: start httpd (Alma)
+      tags: apache,almalinux,httpd
+      service: 
+        name: httpd
+        state: started
+        enabled: yes
+      when: ansible_distribution == "AlmaLinux"
+    
+    - name: change e-mail address for admin
+      tags:
+        - apache
+        - almalinux
+        - httpd
+      lineinfile:
+        path: /etc/httpd/conf/httpd.conf 
+        regexp: '^ServerAdmin'
+        line: ServerAdmin somebody@somewhere.net
+      when: ansible_distribution == "AlmaLinux"
+      register: httpd
+
+    - name: restart httpd (AlmaLinux)
+      tags: apache,almalinux,httpd
+      service:
+        name: httpd
+        state: restarted
+      when: httpd.changed
+
+
+
+    - name: copy default html file for site
+      tags: 
+        - apache
+        - apache2
+        - httpd
+      copy:
+        src: files/default_site.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: 0644
+
+
+- hosts: db_servers
+  become: true
+  tasks:
+
+  - name: install mariadb client and server (Almalinux)
+    tags:
+      - almalinux
+      - db
+      - mariadb 
+    dnf:
+      name:
+        - mariadb
+        - mariadb-server  
+      state: latest
+    when: ansible_distribution == "AlmaLinux"
+
+  - name: Enable and start MariaDb service
+    tags: samba
+    systemd:
+      name: mariadb
+      enabled: yes
+      state: started
+
+
+- hosts: file_servers
+  become: true
+  tasks:
+  
+  - name: install samba package
+    package: 
+      name: samba
+      state: latest
+
