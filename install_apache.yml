@@ -3,24 +3,13 @@
 - hosts: all
   become: true
   tasks:
-        
-  - name: update repository index
-    dnf:
-      update_cache: yes
 
-  - name: install apache2 package
-    dnf:
-      name: httpd
+  - name: install apache2 and php packages
+    package:
+      name:
+        - "{{ apache_package }}" 
+        - "{{ php_package}}"
       state: latest
-        
-  - name: add php support for apache
-    dnf:
-      name: 
-          - php
-          - php-cli
-          - php-common
-          - php-mysqlnd
-          - php-fpm
-          - php-devel
-      state: latest
+      update_cache: yes
+    when: ansible_distribution_version == "9.5"
 

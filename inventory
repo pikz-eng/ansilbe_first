@@ -1,4 +1,9 @@
-192.168.1.135
-192.168.1.137
-192.168.1.138
 
+[web_servers]
+192.168.1.135
+
+[db_servers]
+192.168.1.137 apache_package=httpd php_package="php,php-cli,php-common,php-mysqlnd,php-fpm,php-devel"
+
+[file_servers]  
+192.168.1.138 apache_package=httpd php_package="php,php-cli,php-common,php-mysqlnd,php-fpm,php-devel"
