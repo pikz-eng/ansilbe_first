@@ -1,0 +1,40 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Update all packages on all servers
+      tags: always
+      dnf:
+        name: "*"
+        state: latest
+        update_only: yes
+        update_cache: yes
+      when: ansible_distribution == "AlmaLinux" or ansible_distribution_version == "9.5"
+
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: create marius user
+    tags: always
+    user:
+      name: marius
+      group: root
+  
+  - name: add ssh key for marius
+    tags: always
+    authorized_key:
+      user: marius
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlDU8mK0R1T4W7oDBVpRdHMcD+tHhGGDujNMcbEX7/x ansible"
+
+  - name: add sudoers file for marius
+    copy:
+      src: sudoer_marius
+      dest: /etc/sudoers.d/marius
+      owner: root
+      group: root
+      mode: 0440
+    
+
+

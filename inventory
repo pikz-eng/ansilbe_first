@@ -7,3 +7,7 @@
 
 [file_servers]  
 192.168.1.138 apache_package=httpd php_package="php,php-cli,php-common,php-mysqlnd,php-fpm,php-devel"
+
+
+[workstations]
+192.168.1.138

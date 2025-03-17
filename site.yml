@@ -4,12 +4,23 @@
   tasks:
     - name: Update all packages on all servers
       tags: always
-      dnf:
-        name: "*"
-        state: latest
-        update_only: yes
+      dnf:       
         update_cache: yes
+      changed_when: false
       when: ansible_distribution == "AlmaLinux" or ansible_distribution_version == "9.5"
+
+
+- hosts: all
+  become: true
+  tasks:
+  
+  
+  - name: add ssh key for marius
+    tags: always
+    authorized_key:
+      user: marius
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlDU8mK0R1T4W7oDBVpRdHMcD+tHhGGDujNMcbEX7/x ansible"
+    
 
 - hosts: workstations
   become: true
