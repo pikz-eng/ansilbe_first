@@ -1,13 +1,40 @@
 ---
 - hosts: all
   become: true
-  tasks:
-    - name: Update all packages on all servers
+  pre_tasks:
+
+    - name: update repository index (AlmaLinux)
       tags: always
       dnf:       
         update_cache: yes
-      changed_when: false
       when: ansible_distribution == "AlmaLinux" or ansible_distribution_version == "9.5"
+
+
+- hosts: all
+  become: true
+  roles:
+    - base
+  
+  
+- hosts: workstations
+  become: true
+  roles:
+    - workstations
+
+- hosts: web_servers
+  become: true
+  roles:
+    - web_servers
+
+- hosts: db_servers
+  become: true
+  roles:
+    - db_servers
+
+- hosts: file_servers
+  become: true
+  roles:
+    - file_servers
 
 
 - hosts: all

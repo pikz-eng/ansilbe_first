@@ -6,7 +6,6 @@
       tags: always
       dnf:       
         update_cache: yes
-      changed_when: false
       when: ansible_distribution == "AlmaLinux" or ansible_distribution_version == "9.5"
 
 
